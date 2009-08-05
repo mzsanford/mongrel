@@ -125,7 +125,9 @@ module Mongrel
 
     # Unescapes a URI escaped string. (Stolen from Camping).
     def self.unescape(s)
-      s.tr('+', ' ').gsub(/((?:%[0-9a-fA-F]{2})+)/n){
+      s.tr('+', ' ').gsub(/(%u[0-9a-fA-F]{4,4})/n){
+        [$1.delete('%u').to_i(16)].pack('U')
+      }.gsub(/((?:%[0-9a-fA-F]{2})+)/n){
         [$1.delete('%')].pack('H*')
       } 
     end

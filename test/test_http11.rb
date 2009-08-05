@@ -252,8 +252,6 @@ class HttpParserTest < Test::Unit::TestCase
 
   end
 
-
-
   def test_query_parse
     res = HttpRequest.query_parse("zed=1&frank=#{HttpRequest.escape('&&& ')}")
     assert res["zed"], "didn't get the request right"
@@ -266,6 +264,19 @@ class HttpParserTest < Test::Unit::TestCase
     assert res["frank"], "no frank"
     assert_equal 4,res["zed"].length, "wrong number for zed"
     assert_equal "11",res["frank"], "wrong number for frank"
+  end
+
+  def test_unescape_unicode_with_uXXXX_syntax
+    res = HttpRequest.query_parse("zed=1&frank=%u516D")
+    assert res["zed"], "didn't get the request right"
+    assert res["frank"], "no frank"
+    assert_equal "六", HttpRequest.unescape(res["frank"]), "wrong result"
+  end
+
+  def test_unescape_unicode_with_mixed_uXXXX_syntax
+    res = HttpRequest.query_parse("mixed=%u516D%E5%85%AD")
+    assert res["mixed"], "failed to set the parameter"
+    assert_equal "六六", HttpRequest.unescape(res["mixed"]), "wrong result"
   end
   
 end
